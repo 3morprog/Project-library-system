@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Library Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h2">
+                <i class="fas fa-book-open text-primary"></i> Library Books
+            </h1>
+            <a href="{{ url_for('add_book') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Book
+            </a>
+        </div>
+
+        {% if books %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Author</th>
+                                    <th scope="col">Year Published</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for book in books %}
+                                <tr>
+                                    <th scope="row">{{ loop.index }}</th>
+                                    <td>
+                                        <strong>{{ book.title }}</strong>
+                                    </td>
+                                    <td>{{ book.author }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ book.year_published }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('edit_book', book_id=book.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    onclick="confirmDelete({{ book.id }}, '{{ book.title }}')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle"></i> 
+                    Total books: {{ books|length }}
+                </small>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No books found</h4>
+                    <p class="text-muted">Start building your library by adding your first book.</p>
+                    <a href="{{ url_for('add_book') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Your First Book
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+ Delete Confirmation Modal 
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete "<span id="bookTitle"></span>"?</p>
+                <p class="text-muted small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(bookId, bookTitle) {
+    document.getElementById('bookTitle').textContent = bookTitle;
+    document.getElementById('deleteForm').action = '/delete/' + bookId;
+    
+    var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+</script>
+{% endblock %}

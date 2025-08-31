@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Add Book - Library Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-plus text-primary"></i> Add New Book
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    <div class="mb-3">
+                        <label for="title" class="form-label">
+                            <i class="fas fa-book"></i> Book Title *
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="title" 
+                               name="title" 
+                               required
+                               placeholder="Enter book title"
+                               value="{{ request.form.title if request.form.title }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="author" class="form-label">
+                            <i class="fas fa-user"></i> Author *
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="author" 
+                               name="author" 
+                               required
+                               placeholder="Enter author name"
+                               value="{{ request.form.author if request.form.author }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="year_published" class="form-label">
+                            <i class="fas fa-calendar"></i> Year Published *
+                        </label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="year_published" 
+                               name="year_published" 
+                               required
+                               min="1"
+                               max="{{ current_year }}"
+                               placeholder="e.g., 2023"
+                               value="{{ request.form.year_published if request.form.year_published }}">
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Add Book
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <small class="text-muted">
+                <i class="fas fa-info-circle"></i> 
+                All fields marked with * are required.
+            </small>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Set current year as max value
+document.getElementById('year_published').max = new Date().getFullYear();
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const title = document.getElementById('title').value.trim();
+    const author = document.getElementById('author').value.trim();
+    const year = document.getElementById('year_published').value;
+    
+    if (!title || !author || !year) {
+        e.preventDefault();
+        alert('Please fill in all required fields.');
+        return false;
+    }
+    
+    const currentYear = new Date().getFullYear();
+    if (year < 1 || year > currentYear) {
+        e.preventDefault();
+        alert('Please enter a valid year between 1 and ' + currentYear + '.');
+        return false;
+    }
+});
+</script>
+{% endblock %}
