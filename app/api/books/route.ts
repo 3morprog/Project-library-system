@@ -4,7 +4,9 @@ import db from "@/lib/database"
 // GET /api/books - Get all books
 export async function GET() {
   try {
+    console.log("[v0] API: Getting all books")
     const books = db.getAllBooks()
+    console.log("[v0] API: Returning books:", books.length)
     return NextResponse.json(books)
   } catch (error) {
     console.error("Error fetching books:", error)

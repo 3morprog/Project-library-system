@@ -14,6 +14,7 @@ class LibraryDatabase {
   constructor() {
     // Create database file in the project root
     const dbPath = path.join(process.cwd(), "library.db")
+    console.log("[v0] Initializing database at:", dbPath)
     this.db = new Database(dbPath)
     this.init()
   }
@@ -31,8 +32,10 @@ class LibraryDatabase {
 
     // Check if table is empty and add sample data
     const count = this.db.prepare("SELECT COUNT(*) as count FROM books").get() as { count: number }
+    console.log("[v0] Books count in database:", count.count)
 
     if (count.count === 0) {
+      console.log("[v0] Adding sample books to database")
       const insert = this.db.prepare("INSERT INTO books (title, author, year) VALUES (?, ?, ?)")
 
       const sampleBooks = [
@@ -46,12 +49,15 @@ class LibraryDatabase {
       for (const book of sampleBooks) {
         insert.run(book.title, book.author, book.year)
       }
+      console.log("[v0] Sample books added successfully")
     }
   }
 
   getAllBooks(): Book[] {
     const stmt = this.db.prepare("SELECT * FROM books ORDER BY id DESC")
-    return stmt.all() as Book[]
+    const books = stmt.all() as Book[]
+    console.log("[v0] Fetched books from database:", books.length)
+    return books
   }
 
   getBookById(id: number): Book | undefined {
