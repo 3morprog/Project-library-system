@@ -18,6 +18,7 @@ export function EditBookForm({ bookId }: EditBookFormProps) {
   })
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchBook()
@@ -26,14 +27,21 @@ export function EditBookForm({ bookId }: EditBookFormProps) {
   const fetchBook = async () => {
     try {
       const response = await fetch(`/api/books/${bookId}`)
+
+      if (!response.ok) {
+        throw new Error("Book not found")
+      }
+
       const book = await response.json()
+
       setFormData({
-        title: book.title,
-        author: book.author,
-        year: book.year.toString(),
+        title: book?.title || "",
+        author: book?.author || "",
+        year: book?.year ? book.year.toString() : "",
       })
     } catch (error) {
       console.error("Error fetching book:", error)
+      setError("Error loading book data. Please try again.")
     } finally {
       setFetching(false)
     }
@@ -78,6 +86,14 @@ export function EditBookForm({ bookId }: EditBookFormProps) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <p className="text-red-500">{error}</p>
       </div>
     )
   }

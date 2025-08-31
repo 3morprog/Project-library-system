@@ -1,20 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server"
-
-// In-memory database for demo purposes
-// In production, you would use a real database like SQLite, PostgreSQL, etc.
-const books = [
-  { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", year: 1925 },
-  { id: 2, title: "To Kill a Mockingbird", author: "Harper Lee", year: 1960 },
-  { id: 3, title: "1984", author: "George Orwell", year: 1949 },
-  { id: 4, title: "Pride and Prejudice", author: "Jane Austen", year: 1813 },
-  { id: 5, title: "The Catcher in the Rye", author: "J.D. Salinger", year: 1951 },
-]
-
-let nextId = 6
+import db from "@/lib/database"
 
 // GET /api/books - Get all books
 export async function GET() {
-  return NextResponse.json(books)
+  try {
+    const books = db.getAllBooks()
+    return NextResponse.json(books)
+  } catch (error) {
+    console.error("Error fetching books:", error)
+    return NextResponse.json({ error: "Failed to fetch books" }, { status: 500 })
+  }
 }
 
 // POST /api/books - Add a new book
@@ -27,16 +22,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Title, author, and year are required" }, { status: 400 })
     }
 
-    const newBook = {
-      id: nextId++,
-      title,
-      author,
-      year: Number.parseInt(year),
-    }
-
-    books.push(newBook)
+    const newBook = db.addBook(title, author, Number.parseInt(year))
     return NextResponse.json(newBook, { status: 201 })
   } catch (error) {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
+    console.error("Error adding book:", error)
+    return NextResponse.json({ error: "Failed to add book" }, { status: 500 })
   }
 }

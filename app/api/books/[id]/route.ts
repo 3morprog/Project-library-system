@@ -1,24 +1,21 @@
 import { type NextRequest, NextResponse } from "next/server"
-
-// In-memory database for demo purposes
-const books = [
-  { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", year: 1925 },
-  { id: 2, title: "To Kill a Mockingbird", author: "Harper Lee", year: 1960 },
-  { id: 3, title: "1984", author: "George Orwell", year: 1949 },
-  { id: 4, title: "Pride and Prejudice", author: "Jane Austen", year: 1813 },
-  { id: 5, title: "The Catcher in the Rye", author: "J.D. Salinger", year: 1951 },
-]
+import db from "@/lib/database"
 
 // GET /api/books/[id] - Get a specific book
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const id = Number.parseInt(params.id)
-  const book = books.find((b) => b.id === id)
+  try {
+    const id = Number.parseInt(params.id)
+    const book = db.getBookById(id)
 
-  if (!book) {
-    return NextResponse.json({ error: "Book not found" }, { status: 404 })
+    if (!book) {
+      return NextResponse.json({ error: "Book not found" }, { status: 404 })
+    }
+
+    return NextResponse.json(book)
+  } catch (error) {
+    console.error("Error fetching book:", error)
+    return NextResponse.json({ error: "Failed to fetch book" }, { status: 500 })
   }
-
-  return NextResponse.json(book)
 }
 
 // PUT /api/books/[id] - Update a specific book
@@ -32,34 +29,32 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: "Title, author, and year are required" }, { status: 400 })
     }
 
-    const bookIndex = books.findIndex((b) => b.id === id)
+    const updatedBook = db.updateBook(id, title, author, Number.parseInt(year))
 
-    if (bookIndex === -1) {
+    if (!updatedBook) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 })
     }
 
-    books[bookIndex] = {
-      id,
-      title,
-      author,
-      year: Number.parseInt(year),
-    }
-
-    return NextResponse.json(books[bookIndex])
+    return NextResponse.json(updatedBook)
   } catch (error) {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
+    console.error("Error updating book:", error)
+    return NextResponse.json({ error: "Failed to update book" }, { status: 500 })
   }
 }
 
 // DELETE /api/books/[id] - Delete a specific book
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const id = Number.parseInt(params.id)
-  const bookIndex = books.findIndex((b) => b.id === id)
+  try {
+    const id = Number.parseInt(params.id)
+    const deleted = db.deleteBook(id)
 
-  if (bookIndex === -1) {
-    return NextResponse.json({ error: "Book not found" }, { status: 404 })
+    if (!deleted) {
+      return NextResponse.json({ error: "Book not found" }, { status: 404 })
+    }
+
+    return NextResponse.json({ message: "Book deleted successfully" })
+  } catch (error) {
+    console.error("Error deleting book:", error)
+    return NextResponse.json({ error: "Failed to delete book" }, { status: 500 })
   }
-
-  books.splice(bookIndex, 1)
-  return NextResponse.json({ message: "Book deleted successfully" })
 }
