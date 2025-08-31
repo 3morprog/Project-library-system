@@ -50,6 +50,7 @@ export function EditBookForm({ bookId }: EditBookFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setError(null) // Clear previous errors
 
     try {
       const response = await fetch(`/api/books/${bookId}`, {
@@ -66,10 +67,14 @@ export function EditBookForm({ bookId }: EditBookFormProps) {
       if (response.ok) {
         router.push("/")
       } else {
-        console.error("Error updating book")
+        const errorData = await response.json().catch(() => ({ error: "Unknown error" }))
+        const errorMessage = errorData.error || `HTTP ${response.status}: ${response.statusText}`
+        console.error("Error updating book:", errorMessage)
+        setError(`Failed to update book: ${errorMessage}`)
       }
     } catch (error) {
       console.error("Error updating book:", error)
+      setError("Network error. Please check your connection and try again.")
     } finally {
       setLoading(false)
     }
@@ -100,6 +105,12 @@ export function EditBookForm({ bookId }: EditBookFormProps) {
 
   return (
     <div className="bg-card rounded-lg border shadow-sm p-6">
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
