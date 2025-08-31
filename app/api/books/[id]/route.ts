@@ -5,12 +5,17 @@ import db from "@/lib/database"
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = Number.parseInt(params.id)
+    console.log("[v0] Fetching book with ID:", id)
+
     const book = db.getBookById(id)
+    console.log("[v0] Book data from database:", book)
 
     if (!book) {
+      console.log("[v0] Book not found in database")
       return NextResponse.json({ error: "Book not found" }, { status: 404 })
     }
 
+    console.log("[v0] Returning book data:", book)
     return NextResponse.json(book)
   } catch (error) {
     console.error("Error fetching book:", error)

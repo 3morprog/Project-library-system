@@ -26,6 +26,7 @@ export function EditBookForm({ bookId }: EditBookFormProps) {
 
   const fetchBook = async () => {
     try {
+      console.log("[v0] Fetching book with ID:", bookId)
       const response = await fetch(`/api/books/${bookId}`)
 
       if (!response.ok) {
@@ -33,8 +34,16 @@ export function EditBookForm({ bookId }: EditBookFormProps) {
       }
 
       const book = await response.json()
+      console.log("[v0] Received book data:", book)
+      console.log("[v0] Book year value:", book?.year, "Type:", typeof book?.year)
 
       setFormData({
+        title: book?.title || "",
+        author: book?.author || "",
+        year: book?.year ? book.year.toString() : "",
+      })
+
+      console.log("[v0] Form data set:", {
         title: book?.title || "",
         author: book?.author || "",
         year: book?.year ? book.year.toString() : "",
